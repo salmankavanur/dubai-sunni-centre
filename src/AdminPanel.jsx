@@ -52,7 +52,10 @@ ChartJS.register(
   Legend
 );
 
-const socket = io("http://localhost:5000");
+// Use environment variables for API and Socket.IO URLs
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:5000";
+const socket = io(SOCKET_URL);
 
 export function AdminPanel() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -80,7 +83,7 @@ export function AdminPanel() {
   // Fetch users from MongoDB
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/users");
+      const response = await axios.get(`${API_URL}/api/users`);
       return response.data;
     } catch (err) {
       console.error("Error fetching users:", err);
@@ -92,7 +95,7 @@ export function AdminPanel() {
   // Delete user
   const deleteUser = async (userId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/users/${userId}`);
+      await axios.delete(`${API_URL}/api/users/${userId}`);
       showNotification("User deleted successfully", "success");
     } catch (err) {
       console.error("Error deleting user:", err);
@@ -221,7 +224,6 @@ export function AdminPanel() {
     socket.on("userAdded", (newUser) => {
       setUsers((prev) => {
         const updatedUsers = [...prev, newUser];
-        // Recalculate analytics with the updated users array
         getAnalyticsData(updatedUsers).then(setAnalyticsData);
         return updatedUsers;
       });
@@ -417,64 +419,64 @@ export function AdminPanel() {
         </div>
       )}
       <div className={`admin-sidebar ${isMobileMenuOpen ? "mobile-open" : ""} ${isSidebarExpanded ? "expanded" : "collapsed"}`}>
-  <div className="admin-sidebar-header">
-    {isSidebarExpanded && <h2>Campaign Admin</h2>}
-    <button
-      className="sidebar-toggle-button"
-      onClick={toggleSidebar}
-      title={isSidebarExpanded ? "Collapse Sidebar" : "Expand Sidebar"}
-    >
-      {isSidebarExpanded ? <AiOutlineLeft size="20" /> : <AiOutlineRight size="20" />}
-    </button>
-    {/* Show the close button only in mobile view */}
-    <button
-      className="mobile-close-menu"
-      onClick={() => setIsMobileMenuOpen(false)}
-    >
-      <AiOutlineClose size="24" />
-    </button>
-  </div>
-  <nav className="admin-nav">
-    <ul>
-      <li className={activeTab === "dashboard" ? "active" : ""}>
-        <a href="#dashboard" onClick={() => setActiveTab("dashboard")} title="Dashboard">
-          <AiOutlineDashboard size="20" />
-          {isSidebarExpanded && <span>Dashboard</span>}
-        </a>
-      </li>
-      <li className={activeTab === "users" ? "active" : ""}>
-        <a href="#users" onClick={() => setActiveTab("users")} title="Users">
-          <AiOutlineUser size="20" />
-          {isSidebarExpanded && <span>Users</span>}
-        </a>
-      </li>
-      <li className={activeTab === "analytics" ? "active" : ""}>
-        <a href="#analytics" onClick={() => setActiveTab("analytics")} title="Analytics">
-          <AiOutlineLineChart size="20" />
-          {isSidebarExpanded && <span>Analytics</span>}
-        </a>
-      </li>
-      <li className={activeTab === "export" ? "active" : ""}>
-        <a href="#export" onClick={() => setActiveTab("export")} title="Export Data">
-          <AiOutlineExport size="20" />
-          {isSidebarExpanded && <span>Export Data</span>}
-        </a>
-      </li>
-      <li className={activeTab === "settings" ? "active" : ""}>
-        <a href="#settings" onClick={() => setActiveTab("settings")} title="Settings">
-          <AiOutlineSetting size="20" />
-          {isSidebarExpanded && <span>Settings</span>}
-        </a>
-      </li>
-    </ul>
-  </nav>
-  <div className="admin-sidebar-footer">
-    <button onClick={handleLogout} className="logout-button" title="Log Out">
-      <AiOutlineLogout size="20" />
-      {isSidebarExpanded && <span>Log Out</span>}
-    </button>
-  </div>
-</div>
+        <div className="admin-sidebar-header">
+          {isSidebarExpanded && <h2>Campaign Admin</h2>}
+          <button
+            className="sidebar-toggle-button"
+            onClick={toggleSidebar}
+            title={isSidebarExpanded ? "Collapse Sidebar" : "Expand Sidebar"}
+          >
+            {isSidebarExpanded ? <AiOutlineLeft size="20" /> : <AiOutlineRight size="20" />}
+          </button>
+          {/* Show the close button only in mobile view */}
+          <button
+            className="mobile-close-menu"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <AiOutlineClose size="24" />
+          </button>
+        </div>
+        <nav className="admin-nav">
+          <ul>
+            <li className={activeTab === "dashboard" ? "active" : ""}>
+              <a href="#dashboard" onClick={() => setActiveTab("dashboard")} title="Dashboard">
+                <AiOutlineDashboard size="20" />
+                {isSidebarExpanded && <span>Dashboard</span>}
+              </a>
+            </li>
+            <li className={activeTab === "users" ? "active" : ""}>
+              <a href="#users" onClick={() => setActiveTab("users")} title="Users">
+                <AiOutlineUser size="20" />
+                {isSidebarExpanded && <span>Users</span>}
+              </a>
+            </li>
+            <li className={activeTab === "analytics" ? "active" : ""}>
+              <a href="#analytics" onClick={() => setActiveTab("analytics")} title="Analytics">
+                <AiOutlineLineChart size="20" />
+                {isSidebarExpanded && <span>Analytics</span>}
+              </a>
+            </li>
+            <li className={activeTab === "export" ? "active" : ""}>
+              <a href="#export" onClick={() => setActiveTab("export")} title="Export Data">
+                <AiOutlineExport size="20" />
+                {isSidebarExpanded && <span>Export Data</span>}
+              </a>
+            </li>
+            <li className={activeTab === "settings" ? "active" : ""}>
+              <a href="#settings" onClick={() => setActiveTab("settings")} title="Settings">
+                <AiOutlineSetting size="20" />
+                {isSidebarExpanded && <span>Settings</span>}
+              </a>
+            </li>
+          </ul>
+        </nav>
+        <div className="admin-sidebar-footer">
+          <button onClick={handleLogout} className="logout-button" title="Log Out">
+            <AiOutlineLogout size="20" />
+            {isSidebarExpanded && <span>Log Out</span>}
+          </button>
+        </div>
+      </div>
       <div className={`admin-content ${isSidebarExpanded ? "sidebar-expanded" : "sidebar-collapsed"}`}>
         <div className="admin-header">
           <div className="admin-mobile-header">

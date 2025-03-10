@@ -25,6 +25,8 @@ let Cropy = 624;
 let CropW = 305;
 let CropH = 300;
 
+// Use environment variable for API URL
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export function App(props) {
   let file = document.createElement("input");
@@ -78,24 +80,24 @@ export function App(props) {
 
     const userData = {
       name: Name,
-      email: `${Name.toLowerCase().replace(' ', '.')}@example.com`,
+      email: `${Name.toLowerCase().replace(" ", ".")}@example.com`,
       created: new Date().toISOString(),
-      location: 'Unknown',
+      location: "Unknown",
       device: getDeviceType(),
       shared: false,
-      posterUrl: GeneratedData
+      posterUrl: GeneratedData,
     };
 
-    console.log('Saving user data:', {
+    console.log("Saving user data:", {
       ...userData,
-      posterUrl: userData.posterUrl.substring(0, 50) + "..." // Log only part of the base64 string
+      posterUrl: userData.posterUrl.substring(0, 50) + "...", // Log only part of the base64 string
     });
 
     try {
-      const response = await fetch('http://localhost:5000/api/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData)
+      const response = await fetch(`${API_URL}/api/users`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
       });
       if (!response.ok) {
         const errorText = await response.text();
@@ -103,18 +105,18 @@ export function App(props) {
       }
       const savedUser = await response.json();
       setUserId(savedUser._id);
-      console.log('User saved to MongoDB:', savedUser);
+      console.log("User saved to MongoDB:", savedUser);
     } catch (err) {
-      console.error('Error saving user to MongoDB:', err.message);
-      console.error('Error details:', err);
+      console.error("Error saving user to MongoDB:", err.message);
+      console.error("Error details:", err);
     }
   };
 
   const getDeviceType = () => {
     const ua = navigator.userAgent;
-    if (/mobile/i.test(ua)) return 'Mobile';
-    if (/tablet/i.test(ua)) return 'Tablet';
-    return 'Desktop';
+    if (/mobile/i.test(ua)) return "Mobile";
+    if (/tablet/i.test(ua)) return "Tablet";
+    return "Desktop";
   };
 
   const draw = () => {
@@ -144,24 +146,24 @@ export function App(props) {
 
   const updateShareStatus = async () => {
     if (!userId) {
-      console.warn('No userId available to update share status');
+      console.warn("No userId available to update share status");
       return;
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/users/${userId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ shared: true })
+      const response = await fetch(`${API_URL}/api/users/${userId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shared: true }),
       });
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`Failed to update share status: ${response.status} - ${errorText}`);
       }
-      console.log('Share status updated in MongoDB');
+      console.log("Share status updated in MongoDB");
     } catch (err) {
-      console.error('Error updating share status:', err.message);
-      console.error('Error details:', err);
+      console.error("Error updating share status:", err.message);
+      console.error("Error details:", err);
     }
   };
 
@@ -193,7 +195,7 @@ export function App(props) {
         height: CropH + 100,
         width: CropW + 100,
       },
-      enableOrientation: true
+      enableOrientation: true,
     });
     console.log("Cropper initialized");
   };
@@ -346,19 +348,22 @@ export function App(props) {
             </button>
             <button
               onClick={() => {
-                c.result({
-                  type: 'base64',
-                  size: 'viewport',
-                  format: 'jpeg',
-                  quality: 1
-                }).then((e) => {
-                  console.log("Crop applied, setting CroppedImg");
-                  setCroppedImg(e);
-                  c.destroy();
-                  setcropVis(false);
-                }).catch(err => {
-                  console.error("Error cropping image:", err);
-                });
+                c
+                  .result({
+                    type: "base64",
+                    size: "viewport",
+                    format: "jpeg",
+                    quality: 1,
+                  })
+                  .then((e) => {
+                    console.log("Crop applied, setting CroppedImg");
+                    setCroppedImg(e);
+                    c.destroy();
+                    setcropVis(false);
+                  })
+                  .catch((err) => {
+                    console.error("Error cropping image:", err);
+                  });
               }}
               className="apply-btn"
             >
